@@ -1,3 +1,5 @@
+from functools import wraps
+
 from flask import abort, Blueprint, current_app, g, jsonify, make_response, request
 from flask_httpauth import HTTPTokenAuth
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired
@@ -22,6 +24,16 @@ def verify_token(token):
 @auth.error_handler
 def unauthorized():
     return make_response(jsonify({'message': 'Unauthorized.'}), 401)
+
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not g.current_user['admin']:
+            abort(401)
+        return f(*args, **kwargs)
+
+    return decorated_function
 
 
 def generate_auth_token(user, expiration):

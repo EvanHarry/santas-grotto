@@ -1,6 +1,7 @@
 import csv
 from datetime import datetime
 import sqlite3
+from urllib import parse
 
 import click
 from flask import current_app, g
@@ -72,16 +73,14 @@ def seed_db():
             elif row['Quantities'] in('BOX', 'EMPTY', 'Assorted', 'N/A', '0'):
                 errors.append(row)
                 continue
-            elif row['Supplier'] in ('/', '?'):
-                errors.append(row)
-                continue
             else:
                 quantity = int(row['Quantities'])
+                supplier = ''.join(c for c in row['Supplier'] if c not in '?:!/;')
 
             try:
                 db.execute(
                     'INSERT INTO stock (supplier_code, tidings_code, supplier, location, quantity, last_modified) VALUES (?, ?, ?, ?, ?, ?)',
-                    (row['Suplier Code'], row['Our Code'], row['Supplier'], row['Location'], quantity, last_modified)
+                    (row['Suplier Code'], row['Our Code'], supplier, row['Location'], quantity, last_modified)
                 )
                 db.commit()
                 count += 1

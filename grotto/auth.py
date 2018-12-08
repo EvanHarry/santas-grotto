@@ -1,4 +1,6 @@
 from functools import wraps
+import random
+import string
 
 from flask import abort, Blueprint, current_app, g, jsonify, make_response, request
 from flask_httpauth import HTTPTokenAuth
@@ -45,6 +47,13 @@ def generate_auth_token(user, expiration):
         'admin': user['admin']
     }
     return s.dumps(body).decode('ascii')
+
+
+def generate_password():
+    words = ['elf', 'santa', 'reindeer', 'snow']
+    number = ''.join(random.choices(string.digits, k=2))
+    password = ''.join(random.choice(words) + number)
+    return password
 
 
 def verify_auth_token(token):

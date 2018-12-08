@@ -33,11 +33,19 @@ def init_db():
     with current_app.open_resource('schema.sql') as f:
         db.executescript(f.read().decode('utf8'))
 
+    from grotto.auth import generate_password
+    print('Creating default user...')
+    username = input('Name: ')
+    pwd = generate_password()
+
     db.execute(
         'INSERT INTO user (username, password, admin) VALUES (?, ?, ?)',
-        ('Evan', generate_password_hash('Test1234'), True)
+        (username, generate_password_hash(pwd), True)
     )
     db.commit()
+
+    print('\nGenerated default account, {0}.'.format(username))
+    print('Password {0}.\n'.format(pwd))
 
 
 @click.command('init-db')
@@ -57,6 +65,8 @@ def seed_db():
     user = 'Admin'
 
     last_modified = '{0} - {1}'.format(now, user)
+
+    print('Seeding the database...')
 
     with open('data.csv', newline='', errors='ignore') as csvfile:
         reader = csv.DictReader(csvfile)
@@ -98,8 +108,8 @@ def seed_db():
         for row in errors:
             writer.writerow(row)
 
-    print('{0} entries added to the database.'.format(count))
-    print('{0} entries with errors.'.format(len(errors)))
+    print('\n{0} entries added to the database.'.format(count))
+    print('{0} entries with errors.\n'.format(len(errors)))
 
 
 @click.command('seed-db')

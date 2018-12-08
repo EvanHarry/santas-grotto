@@ -4,7 +4,7 @@ from string import ascii_letters, digits
 from flask import abort, Blueprint, g, jsonify, request
 from werkzeug.security import generate_password_hash
 
-from grotto.auth import admin_required, auth
+from grotto.auth import admin_required, auth, generate_password
 from grotto.db import get_db
 
 bp = Blueprint('users', __name__, url_prefix='/users')
@@ -45,7 +45,7 @@ def create_new_user():
         abort(400)
 
     db = get_db()
-    pwd = ''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(8))
+    pwd = generate_password()
 
     print('Username: {0}, Password: {1}'.format(data['username'], pwd))
 

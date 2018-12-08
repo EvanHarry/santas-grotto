@@ -82,10 +82,11 @@ def seed_db():
                     'INSERT INTO stock (supplier_code, tidings_code, supplier, location, quantity, last_modified) VALUES (?, ?, ?, ?, ?, ?)',
                     (row['Suplier Code'], row['Our Code'], supplier, row['Location'], quantity, last_modified)
                 )
-                db.commit()
                 count += 1
             except db.Error:
                 errors.append(row)
+
+    db.commit()
 
     with open('errors.csv', 'w', newline='') as csvfile:
         fieldnames = ['Suplier Code', 'Our Code', 'Supplier', 'Location', 'Quantities', 'Date Modified', 'Amazon']

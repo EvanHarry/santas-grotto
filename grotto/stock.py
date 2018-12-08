@@ -20,6 +20,18 @@ def to_dict(item):
     }
 
 
+@bp.route('/statistics/', methods=['GET'])
+@auth.login_required
+def get_stock_statistics():
+    db = get_db()
+
+    cursor = db.execute(
+        'SELECT COUNT(*) FROM stock'
+    ).fetchone()
+
+    return jsonify({'count': cursor[0]})
+
+
 @bp.route('/', methods=['GET'])
 @auth.login_required
 def get_all_stock():

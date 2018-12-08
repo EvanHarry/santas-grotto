@@ -1,6 +1,6 @@
-import random
+import csv
+from datetime import datetime
 import sqlite3
-import string
 
 import click
 from flask import current_app, g
@@ -47,6 +47,65 @@ def init_db_command():
     click.echo('Initialised the database.')
 
 
+def seed_db():
+    count = 0
+    errors = []
+    db = get_db()
+
+    now = datetime.now().strftime("%d-%m-%Y")
+    user = 'Admin'
+
+    last_modified = '{0} - {1}'.format(now, user)
+
+    with open('data.csv', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if row['Location'] == '':
+                errors.append(row)
+                continue
+            elif row['Quantities'] == '':
+                errors.append(row)
+                continue
+            elif row['Supplier'] == '':
+                errors.append(row)
+                continue
+            elif row['Quantities'] in('BOX', 'EMPTY', 'Assorted', 'N/A', '0'):
+                errors.append(row)
+                continue
+            else:
+                quantity = int(row['Quantities'])
+
+            try:
+                db.execute(
+                    'INSERT INTO stock (supplier_code, tidings_code, supplier, location, quantity, last_modified) VALUES (?, ?, ?, ?, ?, ?)',
+                    (row['Suplier Code'], row['Our Code'], row['Supplier'], row['Location'], quantity, last_modified)
+                )
+                db.commit()
+                count += 1
+            except db.Error:
+                errors.append(row)
+
+    with open('errors.csv', 'w', newline='') as csvfile:
+        fieldnames = ['Suplier Code', 'Our Code', 'Supplier', 'Location', 'Quantities', 'Date Modified', 'Amazon']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for row in errors:
+            writer.writerow(row)
+
+    print('{0} entries added to the database.'.format(count))
+    print('{0} entries with errors.'.format(len(errors)))
+
+
+@click.command('seed-db')
+@with_appcontext
+def seed_db_command():
+    '''Seed database from .csv file.'''
+    seed_db()
+    click.echo('Database seeded.')
+
+
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
+    app.cli.add_command(seed_db_command)

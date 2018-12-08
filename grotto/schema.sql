@@ -10,8 +10,8 @@ CREATE TABLE user (
 
 CREATE TABLE stock (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  supplier_code TEXT NOT NULL,
-  tidings_code TEXT NOT NULL,
+  supplier_code TEXT,
+  tidings_code TEXT,
   supplier TEXT NOT NULL,
   location TEXT NOT NULL,
   quantity INTEGER CHECK(TYPEOF(quantity) = 'integer') NOT NULL,

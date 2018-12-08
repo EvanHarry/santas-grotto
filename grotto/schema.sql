@@ -8,11 +8,11 @@ CREATE TABLE user (
   admin BOOLEAN NOT NUll
 );
 
-CREATE TABLE item (
+CREATE TABLE stock (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   supplier_code TEXT NOT NULL,
   tidings_code TEXT NOT NULL,
   supplier TEXT NOT NULL,
   location TEXT NOT NULL,
-  quantity INTEGER NOT NULL
+  quantity INTEGER CHECK(TYPEOF(quantity) = 'integer') NOT NULL
 );

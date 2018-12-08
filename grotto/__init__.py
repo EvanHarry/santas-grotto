@@ -21,13 +21,21 @@ def create_app(test_config=None):
     from . import auth
     app.register_blueprint(auth.bp)
 
+    from . import search
+    app.register_blueprint(search.bp)
+
+    from . import stock
+    app.register_blueprint(stock.bp)
+
+    from . import suppliers
+    app.register_blueprint(suppliers.bp)
+
+    from . import users
+    app.register_blueprint(users.bp)
+
     @app.errorhandler(400)
     def bad_request(e):
         return jsonify({'message': 'Bad request.'}), 400
-
-    @app.errorhandler(401)
-    def unauthorised(e):
-        return jsonify({'message': 'Unauthorised.'}), 401
 
     @app.errorhandler(404)
     def not_found(e):

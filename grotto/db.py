@@ -72,6 +72,9 @@ def seed_db():
             elif row['Quantities'] in('BOX', 'EMPTY', 'Assorted', 'N/A', '0'):
                 errors.append(row)
                 continue
+            elif row['Supplier'] in ('/', '?'):
+                errors.append(row)
+                continue
             else:
                 quantity = int(row['Quantities'])
 

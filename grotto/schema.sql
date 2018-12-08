@@ -1,5 +1,5 @@
 DROP TABLE IF EXISTS user;
-DROP TABLE IF EXISTS item;
+DROP TABLE IF EXISTS stock;
 
 CREATE TABLE user (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -14,5 +14,6 @@ CREATE TABLE stock (
   tidings_code TEXT NOT NULL,
   supplier TEXT NOT NULL,
   location TEXT NOT NULL,
-  quantity INTEGER CHECK(TYPEOF(quantity) = 'integer') NOT NULL
+  quantity INTEGER CHECK(TYPEOF(quantity) = 'integer') NOT NULL,
+  last_modified TEXT NOT NULL
 );

@@ -24,7 +24,8 @@ def search_by_category_text(category, search_text):
             'tidings_code': item['tidings_code'],
             'supplier': item['supplier'],
             'location': item['location'],
-            'quantity': item['quantity']
+            'quantity': item['quantity'],
+            'last_modified': item['last_modified']
         })
 
     return jsonify(stock)

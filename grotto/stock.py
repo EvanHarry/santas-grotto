@@ -1,4 +1,6 @@
-from flask import abort, Blueprint, jsonify, request
+from datetime import datetime
+
+from flask import abort, Blueprint, g, jsonify, request
 
 from grotto.auth import auth
 from grotto.db import get_db
@@ -13,7 +15,8 @@ def to_dict(item):
         'tidings_code': item['tidings_code'],
         'supplier': item['supplier'],
         'location': item['location'],
-        'quantity': item['quantity']
+        'quantity': item['quantity'],
+        'last_modified': item['last_modified']
     }
 
 
@@ -43,10 +46,15 @@ def create_new_stock():
 
     db = get_db()
 
+    now = datetime.now().strftime("%d-%m-%Y")
+    user = g.current_user['username']
+
+    last_modified = '{0} - {1}'.format(now, user)
+
     try:
         cursor = db.execute(
-            'INSERT INTO stock (supplier_code, tidings_code, supplier, location, quantity) VALUES (?, ?, ?, ?, ?)',
-            (data['supplier_code'], data['tidings_code'], data['supplier'], data['location'], data['quantity'])
+            'INSERT INTO stock (supplier_code, tidings_code, supplier, location, quantity, last_modified) VALUES (?, ?, ?, ?, ?, ?)',
+            (data['supplier_code'], data['tidings_code'], data['supplier'], data['location'], data['quantity'], last_modified)
         )
         db.commit()
     except db.Error:
@@ -78,10 +86,15 @@ def edit_stock(stock_id):
 
     db = get_db()
 
+    now = datetime.now().strftime("%d/%m/%Y")
+    user = g.current_user['username']
+
+    last_modified = '{0} - {1}'.format(now, user)
+
     try:
         cursor = db.execute(
-            'UPDATE stock SET supplier_code = ?, tidings_code = ?, supplier = ?, location = ?, quantity = ? WHERE id = ?',
-            (data['supplier_code'], data['tidings_code'], data['supplier'], data['location'], data['quantity'], stock_id)
+            'UPDATE stock SET supplier_code = ?, tidings_code = ?, supplier = ?, location = ?, quantity = ?, last_modified = ? WHERE id = ?',
+            (data['supplier_code'], data['tidings_code'], data['supplier'], data['location'], data['quantity'], last_modified, stock_id)
         )
         db.commit()
         stock = db.execute(

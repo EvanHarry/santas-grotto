@@ -57,7 +57,7 @@ def seed_db():
 
     last_modified = '{0} - {1}'.format(now, user)
 
-    with open('data.csv', newline='') as csvfile:
+    with open('data.csv', newline='', errors='ignore') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             if row['Location'] == '':

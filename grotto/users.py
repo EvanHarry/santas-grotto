@@ -1,10 +1,10 @@
 from random import SystemRandom
 from string import ascii_letters, digits
 
-from flask import abort, Blueprint, jsonify, request
+from flask import abort, Blueprint, g, jsonify, request
 from werkzeug.security import generate_password_hash
 
-from grotto.auth import auth
+from grotto.auth import admin_required, auth
 from grotto.db import get_db
 
 bp = Blueprint('users', __name__, url_prefix='/users')
@@ -20,6 +20,7 @@ def to_dict(item):
 
 @bp.route('/', methods=['GET'])
 @auth.login_required
+@admin_required
 def get_all_users():
     db = get_db()
 
@@ -36,6 +37,7 @@ def get_all_users():
 
 @bp.route('/', methods=['POST'])
 @auth.login_required
+@admin_required
 def create_new_user():
     data = request.get_json()
 
@@ -49,31 +51,39 @@ def create_new_user():
 
     try:
         cursor = db.execute(
-        'INSERT INTO user (username, password, admin) VALUES (?, ?, ?)',
-        (data['username'], generate_password_hash(pwd), data['admin'])
-    )
+            'INSERT INTO user (username, password, admin) VALUES (?, ?, ?)',
+            (data['username'], generate_password_hash(pwd), data['admin'])
+        )
         db.commit()
     except db.Error:
         abort(400)
 
-    return jsonify({'message': 'User created.', 'id': cursor.lastrowid}), 201
+    return jsonify({'message': 'User created.', 'password': pwd}), 201
 
 
 @bp.route('/<user_id>/', methods=['DELETE'])
 @auth.login_required
+@admin_required
 def delete_user(user_id):
     db = get_db()
 
-    cursor = db.execute(
-        'DELETE FROM user WHERE id = ?', (user_id,)
-    )
-    db.commit()
+    if int(user_id) == g.current_user['id']:
+        abort(400)
+
+    try:
+        cursor = db.execute(
+            'DELETE FROM user WHERE id = ?', (user_id,)
+        )
+        db.commit()
+    except db.Error:
+        abort(400)
 
     return jsonify({'message': 'User deleted.'}), 200
 
 
 @bp.route('/<user_id>/', methods=['PUT'])
 @auth.login_required
+@admin_required
 def edit_user(user_id):
     data = request.get_json()
 

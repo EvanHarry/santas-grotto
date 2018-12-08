@@ -38,19 +38,6 @@ def init_db():
     )
     db.commit()
 
-    for i in range(1, 1000):
-        supplier_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-        tidings_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-        supplier = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-        location = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-        quantity = int(''.join(random.choices(string.digits, k=2)))
-
-        db.execute(
-            'INSERT INTO stock (supplier_code, tidings_code, supplier, location, quantity) VALUES (?, ?, ?, ?, ?)',
-            (supplier_code, tidings_code, supplier, location, quantity)
-        )
-        db.commit()
-
 
 @click.command('init-db')
 @with_appcontext

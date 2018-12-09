@@ -1,6 +1,3 @@
-from random import SystemRandom
-from string import ascii_letters, digits
-
 from flask import abort, Blueprint, g, jsonify, request
 from werkzeug.security import generate_password_hash
 

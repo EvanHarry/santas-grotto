@@ -1,3 +1,5 @@
+__version__ = '1.0.8'
+
 import os
 
 from flask import Flask, jsonify
@@ -32,6 +34,12 @@ def create_app(test_config=None):
 
     from . import users
     app.register_blueprint(users.bp)
+
+    @app.after_request
+    def api_version(response):
+        response.headers['Access-Control-Expose-Headers'] = 'API-Version'
+        response.headers['API-Version'] = __version__
+        return response
 
     @app.errorhandler(400)
     def bad_request(e):

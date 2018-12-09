@@ -125,7 +125,58 @@ def seed_db_command():
     click.echo('Database seeded.')
 
 
+def reset_user():
+    username = input('Username: ')
+
+    db = get_db()
+
+    cursor = db.execute(
+        'SELECT * FROM user WHERE username = ?', (username,)
+    ).fetchone()
+
+    if cursor is None:
+        print('\nUser not found.\n')
+        return
+
+    from grotto.auth import generate_password
+    pwd = generate_password()
+
+    try:
+        db.execute(
+            'UPDATE user SET password = ? WHERE username = ?',
+            (generate_password_hash(pwd), username)
+        )
+        db.commit()
+    except db.Error:
+        print('\nError updating user.\n')
+        return
+
+    print('\nNew password: {0}.\n'.format(pwd))
+
+
+@click.command('reset-user')
+@with_appcontext
+def reset_user_command():
+    '''Resets user password.'''
+    reset_user()
+    click.echo('User password reset.')
+
+
+def app_version():
+    from grotto import __version__
+    print('Grotto version {0}'.format(__version__))
+
+
+@click.command('app-version')
+@with_appcontext
+def app_version_command():
+    '''Prints app version.'''
+    app_version()
+
+
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
     app.cli.add_command(seed_db_command)
+    app.cli.add_command(reset_user_command)
+    app.cli.add_command(app_version_command)

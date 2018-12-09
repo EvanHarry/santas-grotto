@@ -53,7 +53,7 @@ def get_all_stock():
 def create_new_stock():
     data = request.get_json()
 
-    if data is None or not data.keys() >= {'supplier_code', 'tidings_code', 'supplier', 'location', 'quantity'}:
+    if data is None or not data.keys() >= {'supplier', 'location', 'quantity'}:
         abort(400)
 
     db = get_db()
@@ -63,10 +63,13 @@ def create_new_stock():
 
     last_modified = '{0} - {1}'.format(now, user)
 
+    supplier_code = data.get('supplier_code', '')
+    tidings_code = data.get('tidings_code', '')
+
     try:
         cursor = db.execute(
             'INSERT INTO stock (supplier_code, tidings_code, supplier, location, quantity, last_modified) VALUES (?, ?, ?, ?, ?, ?)',
-            (data['supplier_code'], data['tidings_code'], data['supplier'], data['location'], data['quantity'], last_modified)
+            (supplier_code, tidings_code, data['supplier'], data['location'], data['quantity'], last_modified)
         )
         db.commit()
     except db.Error:
@@ -80,7 +83,7 @@ def create_new_stock():
 def delete_stock(stock_id):
     db = get_db()
 
-    cursor = db.execute(
+    db.execute(
         'DELETE FROM stock WHERE id = ?', (stock_id,)
     )
     db.commit()
@@ -93,7 +96,7 @@ def delete_stock(stock_id):
 def edit_stock(stock_id):
     data = request.get_json()
 
-    if data is None or not data.keys() >= {'supplier_code', 'tidings_code', 'supplier', 'location', 'quantity'}:
+    if data is None or not data.keys() >= {'supplier', 'location', 'quantity'}:
         abort(400)
 
     db = get_db()
@@ -103,10 +106,13 @@ def edit_stock(stock_id):
 
     last_modified = '{0} - {1}'.format(now, user)
 
+    supplier_code = data.get('supplier_code', '')
+    tidings_code = data.get('tidings_code', '')
+
     try:
-        cursor = db.execute(
+        db.execute(
             'UPDATE stock SET supplier_code = ?, tidings_code = ?, supplier = ?, location = ?, quantity = ?, last_modified = ? WHERE id = ?',
-            (data['supplier_code'], data['tidings_code'], data['supplier'], data['location'], data['quantity'], last_modified, stock_id)
+            (supplier_code, tidings_code, data['supplier'], data['location'], data['quantity'], last_modified, stock_id)
         )
         db.commit()
         stock = db.execute(

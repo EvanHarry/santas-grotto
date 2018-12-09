@@ -44,10 +44,8 @@ def create_new_user():
     db = get_db()
     pwd = generate_password()
 
-    print('Username: {0}, Password: {1}'.format(data['username'], pwd))
-
     try:
-        cursor = db.execute(
+        db.execute(
             'INSERT INTO user (username, password, admin) VALUES (?, ?, ?)',
             (data['username'], generate_password_hash(pwd), data['admin'])
         )
@@ -55,6 +53,7 @@ def create_new_user():
     except db.Error:
         abort(400)
 
+    print('Username: {0}, Password: {1}'.format(data['username'], pwd))
     return jsonify({'message': 'User created.', 'password': pwd}), 201
 
 
@@ -68,7 +67,7 @@ def delete_user(user_id):
         abort(400)
 
     try:
-        cursor = db.execute(
+        db.execute(
             'DELETE FROM user WHERE id = ?', (user_id,)
         )
         db.commit()
@@ -90,7 +89,7 @@ def edit_user(user_id):
     db = get_db()
 
     try:
-        cursor = db.execute(
+        db.execute(
             'UPDATE user SET username = ?, admin = ? WHERE id = ?',
             (data['username'], data['admin'], user_id)
         )

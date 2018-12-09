@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import abort, Blueprint, jsonify, request
 
 from grotto.auth import auth
 from grotto.db import get_db
@@ -6,14 +6,19 @@ from grotto.db import get_db
 bp = Blueprint('search', __name__, url_prefix='/search')
 
 
-@bp.route('/<category>/<search_text>/', methods=['GET'])
+@bp.route('/', methods=['POST'])
 @auth.login_required
-def search_by_category_text(category, search_text):
+def search_by_category_text():
+    data = request.get_json()
+
+    if data is None or not data.keys() >= {'category', 'search_text'}:
+        abort(400)
+
     db = get_db()
 
-    partial_search_text = '%{0}%'.format(search_text)
+    partial_search_text = '%{0}%'.format(data['search_text'])
     cursor = db.execute(
-        'SELECT * FROM stock WHERE {0} LIKE ?'.format(category), (partial_search_text,)
+        'SELECT * FROM stock WHERE {0} LIKE ?'.format(data['category']), (partial_search_text,)
     )
 
     stock = []

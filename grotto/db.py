@@ -1,6 +1,6 @@
 import csv
 from datetime import datetime
-import re
+import os
 import sqlite3
 
 import click
@@ -68,6 +68,14 @@ def seed_db():
 
     print('Seeding the database...')
 
+    db.execute(
+        'DELETE FROM stock'
+    )
+
+    if os.path.isfile('data.csv') is False:
+        print('\nSeed file does not exist.\n')
+        return
+
     with open('data.csv', newline='', errors='ignore') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
@@ -85,14 +93,11 @@ def seed_db():
                 continue
             else:
                 quantity = int(row['Quantities'])
-                supplier = re.sub('[^A-Za-z0-9]+', '', row['Supplier'])
-                supplier_code = re.sub('[^A-Za-z0-9]+', '', row['Suplier Code'])
-                tidings_code = re.sub('[^A-Za-z0-9]+', '', row['Our Code'])
 
             try:
                 db.execute(
                     'INSERT INTO stock (supplier_code, tidings_code, supplier, location, quantity, last_modified) VALUES (?, ?, ?, ?, ?, ?)',
-                    (supplier_code, tidings_code, supplier, row['Location'], quantity, last_modified)
+                    (row['Suplier Code'], row['Our Code'], row['Supplier'], row['Location'], quantity, last_modified)
                 )
                 count += 1
             except db.Error:

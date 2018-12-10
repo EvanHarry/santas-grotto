@@ -1,4 +1,6 @@
-from flask import abort, Blueprint, current_app, g, jsonify, make_response, request
+from operator import itemgetter
+
+from flask import Blueprint, jsonify
 
 from grotto.auth import auth
 from grotto.db import get_db
@@ -20,5 +22,7 @@ def get_all_suppliers():
         suppliers.append({
             'text': item['supplier']
         })
+
+    suppliers.sort(key=itemgetter('text'))
 
     return jsonify(suppliers)

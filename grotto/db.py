@@ -56,7 +56,7 @@ def init_db_command():
     click.echo('Initialised the database.')
 
 
-def seed_db():
+def seed_db(wipe=False):
     count = 0
     errors = []
     db = get_db()
@@ -68,9 +68,11 @@ def seed_db():
 
     print('Seeding the database...')
 
-    db.execute(
-        'DELETE FROM stock'
-    )
+    if wipe:
+        print('Wiping stock table.')
+        db.execute(
+            'DELETE FROM stock'
+        )
 
     if os.path.isfile('data.csv') is False:
         print('\nSeed file does not exist.\n')
@@ -88,7 +90,7 @@ def seed_db():
             elif row['Supplier'] == '':
                 errors.append(row)
                 continue
-            elif row['Quantities'] in('BOX', 'EMPTY', 'Assorted', 'N/A', '0'):
+            elif row['Quantities'] in('BOX', 'EMPTY', 'Assorted', 'N/A'):
                 errors.append(row)
                 continue
             else:
@@ -118,10 +120,14 @@ def seed_db():
 
 
 @click.command('seed-db')
+@click.option('--wipe', type=click.Choice(['yes', 'no']))
 @with_appcontext
-def seed_db_command():
+def seed_db_command(wipe):
     '''Seed database from .csv file.'''
-    seed_db()
+    if wipe == 'yes':
+        seed_db(True)
+    else:
+        seed_db()
     click.echo('Database seeded.')
 
 

@@ -1,7 +1,9 @@
 import csv
 from datetime import datetime
 import os
+import shutil
 import sqlite3
+import time
 
 import click
 from flask import current_app, g
@@ -180,9 +182,39 @@ def app_version_command():
     app_version()
 
 
+def backup_db():
+    db = get_db()
+
+    print('Starting database backup...')
+
+    db.execute(
+        'BEGIN IMMEDIATE'
+    )
+
+    if not os.path.exists('backups'):
+        os.makedirs('backups')
+
+    original_file = 'instance\\grotto.sqlite'
+    backup_file = os.path.join('backups\\grotto' + time.strftime("_%d-%m-%Y.sqlite"))
+
+    shutil.copyfile(original_file, backup_file)
+
+    db.rollback()
+
+    print('\nDatabase backup stored in {0}.'.format(backup_file))
+
+
+@click.command('backup-db')
+@with_appcontext
+def backup_db_command():
+    '''Make a local backup of the database.'''
+    backup_db()
+
+
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
     app.cli.add_command(seed_db_command)
     app.cli.add_command(reset_user_command)
     app.cli.add_command(app_version_command)
+    app.cli.add_command(backup_db_command)

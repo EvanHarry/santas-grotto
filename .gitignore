@@ -3,6 +3,7 @@ venv/
 *.pyc
 __pycache__/
 
+backups/
 instance/
 
 .pytest_cache/
@@ -14,3 +15,4 @@ build/
 *.egg-info/
 
 *.csv
+*.sqlite

@@ -194,7 +194,7 @@ def backup_db():
     if not os.path.exists('backups'):
         os.makedirs('backups')
 
-    original_file = 'instance\\grotto.sqlite'
+    original_file = os.path.join(current_app.instance_path, 'grotto.sqlite')
     backup_file = os.path.join('backups\\grotto' + time.strftime("_%d-%m-%Y.sqlite"))
 
     shutil.copyfile(original_file, backup_file)

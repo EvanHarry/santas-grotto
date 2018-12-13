@@ -26,10 +26,17 @@ def get_stock_statistics():
     db = get_db()
 
     cursor = db.execute(
-        'SELECT COUNT(*) FROM stock'
-    ).fetchone()
+        'SELECT quantity FROM stock'
+    )
 
-    return jsonify({'count': cursor[0]})
+    count = 0
+    entries = 0
+
+    for item in cursor:
+        count += item['quantity']
+        entries += 1
+
+    return jsonify({'count': count, 'entries': entries})
 
 
 @bp.route('/', methods=['GET'])

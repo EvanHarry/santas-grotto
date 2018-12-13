@@ -1,4 +1,4 @@
-__version__ = '1.0.15'
+__version__ = '1.0.16'
 
 import os
 
@@ -25,6 +25,9 @@ def create_app(test_config=None):
 
     from . import search
     app.register_blueprint(search.bp)
+
+    from . import locations
+    app.register_blueprint(locations.bp)
 
     from . import stock
     app.register_blueprint(stock.bp)

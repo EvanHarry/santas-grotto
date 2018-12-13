@@ -89,7 +89,7 @@ def login():
         error = {'msg': 'Incorrect password.', 'code': 401}
 
     if error is None:
-        token = generate_auth_token(user, 86400)
+        token = generate_auth_token(user, 604800)
         return jsonify({'token': token})
     else:
         return jsonify({'message': error['msg']}), error['code']

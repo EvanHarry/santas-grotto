@@ -1,41 +1,45 @@
-__version__ = '1.0.17'
+__version__ = '2.0.0'
 
 import os
 
 from flask import Flask, jsonify
 from flask_cors import CORS
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+
+cors = CORS()
+db = SQLAlchemy()
 
 
 def create_app(test_config=None):
-    # create and configure the app
+    '''
+    Create and configure the app.
+    '''
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'grotto.sqlite'),
+        SQLALCHEMY_DATABASE_URI='sqlite:///' + os.path.join(app.instance_path, 'grotto.db'),
+        SQLALCHEMY_TRACK_MODIFICATIONS=True,
     )
 
-    cors = CORS()
     cors.init_app(app)
-
-    from . import db
     db.init_app(app)
 
-    from . import auth
+    Migrate(app, db)
+
+    from grotto import cli
+    cli.init_app(app)
+
+    from grotto.routes import auth
     app.register_blueprint(auth.bp)
 
-    from . import search
-    app.register_blueprint(search.bp)
-
-    from . import locations
-    app.register_blueprint(locations.bp)
-
-    from . import stock
+    from grotto.routes import stock
     app.register_blueprint(stock.bp)
 
-    from . import suppliers
-    app.register_blueprint(suppliers.bp)
+    from grotto.routes import search
+    app.register_blueprint(search.bp)
 
-    from . import users
+    from grotto.routes import users
     app.register_blueprint(users.bp)
 
     @app.after_request
@@ -47,6 +51,10 @@ def create_app(test_config=None):
     @app.errorhandler(400)
     def bad_request(e):
         return jsonify({'message': 'Bad request.'}), 400
+
+    @app.errorhandler(401)
+    def unauthorised(e):
+        return jsonify({'message': 'Unauthorised.'}), 400
 
     @app.errorhandler(404)
     def not_found(e):

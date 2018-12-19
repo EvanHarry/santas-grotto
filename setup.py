@@ -14,5 +14,6 @@ setup(
         'flask',
         'flask_cors',
         'flask_httpauth',
+        'flask_migrate',
     ],
 )

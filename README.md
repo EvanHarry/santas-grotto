@@ -37,7 +37,7 @@ flask run
 ```
 
 ## Release
-To release a new version, change the tag in ```setup.py``` then run:
+To release a new version, change the tag in ```__init__.py``` then run:
 ```bash
 python setup.py bdist_wheel
 ```

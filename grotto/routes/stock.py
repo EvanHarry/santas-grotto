@@ -58,8 +58,8 @@ def update_stock(stock_id):
     user = g.current_user.username
 
     stock.supplier = data['supplier']
-    stock.supplier = data['location']
-    stock.supplier = data['quantity']
+    stock.location = data['location']
+    stock.quantity = data['quantity']
     stock.supplier_code = data.get('supplier_code', '')
     stock.tidings_code = data.get('tidings_code', '')
     stock.last_modified = '{0} - {1}'.format(now, user)
@@ -75,6 +75,7 @@ def delete_stock(stock_id):
     stock = Stock.query.filter_by(id=stock_id).first_or_404()
 
     db.session.delete(stock)
+    db.session.commit()
 
     return jsonify({'message': 'Stock deleted.'}), 200
 

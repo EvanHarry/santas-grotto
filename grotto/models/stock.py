@@ -8,12 +8,12 @@ from grotto import db
 class Stock(db.Model):
     __tablename__ = 'stock'
     id = db.Column(db.Integer(), primary_key=True)
-    supplier_code = db.Column(db.String())
-    tidings_code = db.Column(db.String())
-    supplier = db.Column(db.String())
-    location = db.Column(db.String())
+    supplier_code = db.Column(db.String(length=100))
+    tidings_code = db.Column(db.String(length=100))
+    supplier = db.Column(db.String(length=100))
+    location = db.Column(db.String(length=100))
     quantity = db.Column(db.Integer())
-    last_modified = db.Column(db.String())
+    last_modified = db.Column(db.String(length=100))
 
     def __init__(self, supplier, location, quantity, supplier_code=None, tidings_code=None):
         self.supplier_code = supplier_code

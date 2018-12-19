@@ -8,8 +8,8 @@ from grotto import db
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer(), primary_key=True)
-    username = db.Column(db.String(), unique=True)
-    password_hash = db.Column(db.String())
+    username = db.Column(db.String(length=100), unique=True)
+    password_hash = db.Column(db.String(length=200))
     admin = db.Column(db.Boolean(), default=False)
 
     def __init__(self, username, password, **kwargs):

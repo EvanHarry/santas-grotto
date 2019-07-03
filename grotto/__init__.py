@@ -9,6 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 cors = CORS()
 db = SQLAlchemy()
+migrate = Migrate()
 
 
 def create_app(test_config=None):
@@ -22,11 +23,26 @@ def create_app(test_config=None):
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
     )
 
+    if test_config is None:
+        app.config.from_pyfile('config.py', silent=True)
+    else:
+        app.config.from_mapping(test_config)
+
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
+
+    '''
+    Configure third party libraries
+    '''
     cors.init_app(app)
     db.init_app(app)
+    migrate.init_app(app, db)
 
-    Migrate(app, db)
-
+    '''
+    Add all blueprints
+    '''
     from grotto import cli
     cli.init_app(app)
 
@@ -42,12 +58,18 @@ def create_app(test_config=None):
     from grotto.routes import users
     app.register_blueprint(users.bp)
 
+    '''
+    API-VERSION header
+    '''
     @app.after_request
     def api_version(response):
         response.headers['Access-Control-Expose-Headers'] = 'API-Version'
         response.headers['API-Version'] = __version__
         return response
 
+    '''
+    STATUS CODE handlers
+    '''
     @app.errorhandler(400)
     def bad_request(e):
         return jsonify({'message': 'Bad request.'}), 400
@@ -64,17 +86,8 @@ def create_app(test_config=None):
     def not_allowed(e):
         return jsonify({'message': 'Method not allowed.'}), 405
 
-    if test_config is None:
-        # load the instance config, if it exists, when not testing
-        app.config.from_pyfile('config.py', silent=True)
-    else:
-        # load the test config if passed in
-        app.config.from_mapping(test_config)
-
-    # ensure the instance folder exists
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
+    @app.errorhandler(500)
+    def server_error(e):
+        return jsonify({'message': 'Server error.'}), 500
 
     return app
